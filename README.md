@@ -314,6 +314,14 @@ Three free tiers, in this order. **Deploy the backend first** — the frontend n
 
 ### 2. Backend — Render (or Railway)
 
+The repo ships a **`render.yaml` blueprint**, so the quickest path is
+*New → Blueprint → pick this repo*. Render reads the file, creates the service with the
+right root directory, build/start commands and health check, **generates `JWT_SECRET`
+itself**, and asks you only for `MONGODB_URI` and `CLIENT_ORIGIN`.
+
+<details>
+<summary>Or configure it by hand instead</summary>
+
 **Render** (<https://render.com>) → *New* → *Web Service* → connect your repo:
 
 | Setting | Value |
@@ -337,6 +345,8 @@ Do **not** set `PORT`; Render injects it and the server reads `process.env.PORT`
 
 Deploy, then confirm `https://<your-service>.onrender.com/api/health` returns
 `{"status":"ok","db":"connected"}`.
+
+</details>
 
 **Railway** (<https://railway.app>) is equivalent: new project from repo, set the root
 directory to `server`, start command `npm start`, and add the same variables.

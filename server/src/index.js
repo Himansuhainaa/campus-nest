@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 
 const { connectDB } = require('./config/db');
 const { UPLOAD_DIR, PUBLIC_PREFIX } = require('./middleware/upload');
-const { notFoundHandler, errorHandler } = require('./utils/errorHandler');
+const { ApiError, notFoundHandler, errorHandler } = require('./utils/errorHandler');
 
 const authRoutes = require('./routes/auth.routes');
 const listingRoutes = require('./routes/listing.routes');
@@ -31,7 +31,9 @@ app.use(
       if (!origin) return cb(null, true); // curl, server-to-server, same-origin
       const normalized = origin.replace(/\/$/, '');
       if (allowlist.includes(normalized)) return cb(null, true);
-      cb(new Error(`Origin ${origin} is not allowed by CORS.`));
+      // A plain Error here would surface as a 500 and get logged as a server
+      // fault — noisy, and wrong. A blocked origin is a client error.
+      cb(ApiError.forbidden(`Origin ${origin} is not allowed by CORS.`));
     },
     credentials: false, // the JWT rides in the Authorization header, not a cookie
   })
