@@ -419,16 +419,27 @@ the next request takes 30–60 seconds to wake it. The frontend shows a loading 
 a clear "cannot reach the API" message if it times out. If you're demoing to someone, load
 the site once yourself first.
 
-**Uploaded images don't survive a redeploy on free hosts.** Render and Railway free plans
-give you an ephemeral filesystem, so anything written to `server/uploads` disappears when
-the service restarts. Listings survive; their photos revert to the generated colour cover,
-which is exactly why that fallback exists. For permanent images, swap in Cloudinary:
+**Image storage picks itself.** `server/src/middleware/upload.js` has two backends and
+chooses by environment:
 
-> `server/src/middleware/upload.js` is the only file you need to touch. It exposes
-> `uploadListingImages`, `toPublicPaths(files)` and `removeStoredImage(path)`; the rest of
-> the app only ever sees the strings `toPublicPaths` returns. The file's header comment
-> spells out the exact three-step Cloudinary swap, and the client's `assetUrl()` already
-> passes absolute `https://` URLs straight through.
+| `CLOUDINARY_URL` | Backend | Behaviour |
+| --- | --- | --- |
+| set | Cloudinary | Images survive restarts and redeploys. **Use this in production.** |
+| unset | Local disk | Writes to `server/uploads`. Fine for development and tests. |
+
+On a free host the filesystem is ephemeral, so **without Cloudinary every uploaded photo
+disappears when the service restarts**. Listings themselves survive; their photos fall back
+to the generated colour cover, which is exactly why that fallback exists.
+
+To enable it: create a free account at <https://cloudinary.com>, copy the **API environment
+variable** from the dashboard (it looks like
+`cloudinary://<api_key>:<api_secret>@<cloud_name>`), and set it as `CLOUDINARY_URL` on your
+host. Nothing else changes — the client's `assetUrl()` already passes absolute `https://`
+URLs straight through, so Cloudinary URLs and `/uploads/...` paths are interchangeable, and
+listings uploaded under either backend keep working.
+
+Cloudinary's free tier is generous (25 GB storage and 25 GB/month bandwidth at time of
+writing) and needs no card.
 
 **Seeding is destructive.** `npm run seed` deletes all users, listings and reviews in the
 target database. It hard-refuses when `NODE_ENV=production` unless you pass `-- --force`.

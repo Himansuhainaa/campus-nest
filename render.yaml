@@ -34,4 +34,11 @@ services:
       - key: CLIENT_ORIGIN
         sync: false
 
+      # Strongly recommended in production. Without it, uploaded photos are
+      # written to Render's ephemeral disk and vanish on every restart or
+      # redeploy. Copy the "API environment variable" from your Cloudinary
+      # dashboard: cloudinary://<api_key>:<api_secret>@<cloud_name>
+      - key: CLOUDINARY_URL
+        sync: false
+
     # PORT is injected by Render automatically — do not set it here.
