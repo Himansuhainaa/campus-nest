@@ -8,6 +8,20 @@ describe('GET /api/health', () => {
     expect(res.body.status).toBe('ok');
     expect(res.body.db).toBe('connected');
   });
+
+  it('reports which image backend is active', async () => {
+    const res = await request(app).get('/api/health');
+    // No CLOUDINARY_* vars under test, so it must report the disk fallback.
+    expect(res.body.storage).toBe('disk');
+  });
+
+  it('never leaks credentials in the health payload', async () => {
+    const res = await request(app).get('/api/health');
+    const serialized = JSON.stringify(res.body);
+    expect(serialized).not.toMatch(/cloudinary:\/\//i);
+    expect(serialized).not.toMatch(/mongodb(\+srv)?:\/\//i);
+    expect(serialized).not.toMatch(/secret|password|api_key/i);
+  });
 });
 
 describe('POST /api/auth/register', () => {

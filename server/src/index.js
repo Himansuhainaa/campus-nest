@@ -5,7 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const { connectDB } = require('./config/db');
-const { UPLOAD_DIR, PUBLIC_PREFIX } = require('./middleware/upload');
+const { UPLOAD_DIR, PUBLIC_PREFIX, USE_CLOUDINARY } = require('./middleware/upload');
 const { ApiError, notFoundHandler, errorHandler } = require('./utils/errorHandler');
 
 const authRoutes = require('./routes/auth.routes');
@@ -66,6 +66,10 @@ app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
     db: states[mongoose.connection.readyState] ?? 'unknown',
+    // Which image backend is live. Names the backend only, never any
+    // credential — makes "did my CLOUDINARY_URL actually get picked up?"
+    // answerable without shell access to the host.
+    storage: USE_CLOUDINARY ? 'cloudinary' : 'disk',
     uptime: Math.round(process.uptime()),
   });
 });
