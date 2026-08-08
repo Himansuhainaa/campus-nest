@@ -1,7 +1,6 @@
 # CampusNest
 
-<!-- Once you push to GitHub, replace OWNER/REPO below and this badge goes live. -->
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/Himansuhainaa/campus-nest/actions/workflows/ci.yml/badge.svg)](https://github.com/Himansuhainaa/campus-nest/actions/workflows/ci.yml)
 
 **Honest reviews of off-campus student housing.** Think Yelp, but for the apartments,
 sublets and rental houses around your college — and instead of one vague star rating,
@@ -204,8 +203,7 @@ MONGODB_URI_TEST=mongodb://127.0.0.1:27017/mything_test npm test
 
 Both jobs use `npm ci`, so the lockfiles must stay committed and in sync.
 
-After pushing to GitHub, replace `OWNER/REPO` in the badge at the top of this file with
-your actual path to make it render.
+The badge at the top of this file reflects the latest run on `main`.
 
 ### All four commands, back to back
 
