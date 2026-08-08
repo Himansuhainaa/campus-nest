@@ -7,3 +7,6 @@ dist/
 npm-debug.log*
 .DS_Store
 Thumbs.db
+
+# Local working notes, not part of the project
+HANDOFF.md
