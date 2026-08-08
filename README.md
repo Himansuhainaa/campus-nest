@@ -1,5 +1,8 @@
 # CampusNest
 
+<!-- Once you push to GitHub, replace OWNER/REPO below and this badge goes live. -->
+[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+
 **Honest reviews of off-campus student housing.** Think Yelp, but for the apartments,
 sublets and rental houses around your college — and instead of one vague star rating,
 every review scores the five things that actually determine whether you'll regret a
@@ -189,6 +192,20 @@ MONGODB_URI_TEST=mongodb://127.0.0.1:27017/mything_test npm test
 ```
 
 `npm run test:watch` re-runs on change.
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request to `main`:
+
+| Job | What it does |
+| --- | --- |
+| **Server tests** | Spins up a `mongo:7` service container, runs the 80-test suite on Node 20 **and** 22, then runs the seed script against a throwaway database to prove it still works end to end. |
+| **Client build** | Runs `npm ci` and `npm run build`, so a broken import or JSX error fails the PR rather than the deploy. |
+
+Both jobs use `npm ci`, so the lockfiles must stay committed and in sync.
+
+After pushing to GitHub, replace `OWNER/REPO` in the badge at the top of this file with
+your actual path to make it render.
 
 ### All four commands, back to back
 
