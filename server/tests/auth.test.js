@@ -15,6 +15,20 @@ describe('GET /api/health', () => {
     expect(res.body.storage).toBe('disk');
   });
 
+  it('reports whether each Cloudinary config form is visible', async () => {
+    const res = await request(app).get('/api/health');
+    expect(res.body.storageConfig).toEqual({
+      cloudinaryUrl: false,
+      cloudinarySplit: false,
+    });
+  });
+
+  it('reports the running commit and node version', async () => {
+    const res = await request(app).get('/api/health');
+    expect(typeof res.body.commit).toBe('string');
+    expect(res.body.node).toMatch(/^v\d+\./);
+  });
+
   it('never leaks credentials in the health payload', async () => {
     const res = await request(app).get('/api/health');
     const serialized = JSON.stringify(res.body);

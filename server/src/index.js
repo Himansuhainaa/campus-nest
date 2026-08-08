@@ -70,6 +70,21 @@ app.get('/api/health', (_req, res) => {
     // credential — makes "did my CLOUDINARY_URL actually get picked up?"
     // answerable without shell access to the host.
     storage: USE_CLOUDINARY ? 'cloudinary' : 'disk',
+    // Booleans only: whether the process can SEE each config form. Enough to
+    // tell "the variable never arrived" from "the variable is malformed",
+    // which is otherwise indistinguishable from outside the host.
+    storageConfig: {
+      cloudinaryUrl: Boolean(process.env.CLOUDINARY_URL),
+      cloudinarySplit: Boolean(
+        process.env.CLOUDINARY_CLOUD_NAME &&
+          process.env.CLOUDINARY_API_KEY &&
+          process.env.CLOUDINARY_API_SECRET
+      ),
+    },
+    // Which commit and runtime are actually live. Render injects the commit;
+    // both have already caused confusion by silently differing from expectation.
+    commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || 'unknown',
+    node: process.version,
     uptime: Math.round(process.uptime()),
   });
 });

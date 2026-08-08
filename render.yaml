@@ -12,6 +12,9 @@ services:
     rootDir: server
     buildCommand: npm ci
     startCommand: npm start
+    # Pinned so production runs the same major CI tests against. Without this,
+    # `engines: >=20` lets Render pick the newest Node in existence — it was
+    # running 26 while CI only ever tested 20 and 22. See server/.node-version.
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
