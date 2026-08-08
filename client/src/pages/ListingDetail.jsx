@@ -103,6 +103,8 @@ export default function ListingDetail() {
   const [deletingReviewId, setDeletingReviewId] = useState(null);
   const [deletingListing, setDeletingListing] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
+  // Carried over from New/Edit when the listing saved but its photos did not.
+  const [notice, setNotice] = useState(location.state?.notice || '');
 
   useEffect(() => {
     let cancelled = false;
@@ -310,6 +312,23 @@ export default function ListingDetail() {
           </div>
         )}
       </div>
+
+      {notice && (
+        <div
+          role="status"
+          className="mt-4 flex items-start justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-sm text-amber-800"
+        >
+          <span>{notice}</span>
+          <button
+            type="button"
+            onClick={() => setNotice('')}
+            className="shrink-0 font-medium text-amber-700 hover:text-amber-900"
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {actionError && (
         <p

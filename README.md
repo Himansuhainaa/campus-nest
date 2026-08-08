@@ -415,9 +415,32 @@ want on a public link.
 ## Notes, limits and gotchas
 
 **Render's free tier sleeps.** After ~15 minutes of no traffic the service spins down, and
-the next request takes 30–60 seconds to wake it. The frontend shows a loading state and then
-a clear "cannot reach the API" message if it times out. If you're demoing to someone, load
-the site once yourself first.
+the next request takes 30–60 seconds to wake it. Three things handle this:
+
+- The API client's timeout is **60 seconds**, comfortably clearing a cold start. (It was
+  20s, which meant the first visitor after a quiet spell got an error rather than a slow
+  page.)
+- Reads retry once on a timeout, network drop, or 502/503/504 — the shapes a waking
+  container produces. Writes never retry, since retrying a POST could double-create.
+- After 5 seconds a banner explains what's happening rather than leaving a bare spinner:
+  *"Waking the server up… the first load after a quiet spell can take up to a minute."*
+
+`.github/workflows/keep-alive.yml` also pings `/api/health` every 10 minutes to keep it
+warm. Read the comments at the top before relying on it — notably, staying awake uses ~730
+of your 750 free instance-hours a month, so it only works if this is your **only** free
+service.
+
+**The app limits itself rather than falling over.** Every free tier here has a ceiling, and
+hitting one shouldn't take the site down:
+
+| Failure | What happens |
+| --- | --- |
+| Someone hammers the API | Rate limited: 600 req/15 min overall, 25 sign-in attempts/15 min, 40 writes/hour — all per IP, with a clear 429 message. `/api/health` is exempt so uptime checks always work. |
+| Cloudinary over quota or down | The listing still saves, without its photos, and the user is told they can add them later. A bad *file type* is still rejected — only infrastructure failures degrade. |
+| Atlas storage full (512 MB on M0) | `503` with "the site has reached its storage limit", not a `500`. |
+| Database unreachable | `503` "temporarily unreachable", not a `500`. |
+
+Set `DISABLE_RATE_LIMIT=true` to turn limiting off (the test suite does this automatically).
 
 **Image storage picks itself.** `server/src/middleware/upload.js` has two backends and
 chooses by environment:

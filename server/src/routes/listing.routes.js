@@ -8,22 +8,23 @@ const {
 } = require('../controllers/listing.controller');
 const { createReview } = require('../controllers/review.controller');
 const { requireAuth } = require('../middleware/auth');
-const { uploadListingImages } = require('../middleware/upload');
+const { uploadListingImagesResilient } = require('../middleware/upload');
+const { writeLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
 router
   .route('/')
   .get(listListings)
-  .post(requireAuth, uploadListingImages, createListing);
+  .post(requireAuth, writeLimiter, uploadListingImagesResilient, createListing);
 
 router
   .route('/:id')
   .get(getListing)
-  .put(requireAuth, uploadListingImages, updateListing)
+  .put(requireAuth, writeLimiter, uploadListingImagesResilient, updateListing)
   .delete(requireAuth, deleteListing);
 
 // Nested: a review always belongs to a listing.
-router.post('/:id/reviews', requireAuth, createReview);
+router.post('/:id/reviews', requireAuth, writeLimiter, createReview);
 
 module.exports = router;

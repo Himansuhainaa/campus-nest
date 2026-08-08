@@ -195,6 +195,40 @@ const upload = multer({
 const uploadListingImages = upload.array('images', MAX_FILES);
 
 /**
+ * Same thing, but survives the storage backend being unavailable.
+ *
+ * If Cloudinary is over its free-tier quota, rate limited, or simply down, a
+ * failed photo upload should not cost the user the listing they just wrote.
+ * Problems the user can actually fix (wrong file type, too many files, file too
+ * large) still surface as errors; infrastructure problems degrade to "posted,
+ * but without the photos".
+ */
+function makeResilientUpload(inner) {
+  // Arity stays 3 — Express treats a 4-argument function as an error handler.
+  return function resilientUpload(req, res, next) {
+    inner(req, res, (err) => {
+      if (!err) return next();
+
+      // ApiError carries a status; MulterError means the request itself was bad.
+      const isUserFixable = Boolean(err.status) || err.name === 'MulterError';
+      if (isUserFixable) return next(err);
+
+      console.warn(
+        '[upload] storage backend unavailable, continuing without images:',
+        err.message
+      );
+      req.files = [];
+      req.uploadWarning =
+        'Your listing was saved, but the photos could not be uploaded right now. ' +
+        'You can add them later by editing the listing.';
+      next();
+    });
+  };
+}
+
+const uploadListingImagesResilient = makeResilientUpload(uploadListingImages);
+
+/**
  * Turn multer file objects into the strings we persist on the Listing.
  * Cloudinary gives back a full https URL; disk gives back "/uploads/<name>".
  */
@@ -226,6 +260,8 @@ if (USE_CLOUDINARY) {
 
 module.exports = {
   uploadListingImages,
+  uploadListingImagesResilient,
+  makeResilientUpload,
   toPublicPaths,
   removeStoredImage,
   publicIdFromUrl,

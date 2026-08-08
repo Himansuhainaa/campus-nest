@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
+import WakingNotice from './components/WakingNotice';
 import Home from './pages/Home';
 import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
@@ -101,6 +102,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <WakingNotice />
     </div>
   );
 }

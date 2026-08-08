@@ -47,7 +47,10 @@ export default function EditListing() {
   const handleSubmit = async (formData) => {
     try {
       const { data } = await api.put(`/listings/${id}`, formData);
-      navigate(`/listings/${data.listing._id}`, { replace: true });
+      navigate(`/listings/${data.listing._id}`, {
+        replace: true,
+        state: data.warning ? { notice: data.warning } : null,
+      });
     } catch (err) {
       throw new Error(getErrorMessage(err, 'Could not save your changes.'));
     }

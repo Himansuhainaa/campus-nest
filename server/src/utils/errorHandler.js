@@ -74,6 +74,23 @@ function errorHandler(err, req, res, next) {
     message = map[err.code] || `Upload failed: ${err.message}`;
   }
 
+  // --- Capacity / availability ------------------------------------------
+  // Free tiers run out: Atlas M0 caps storage at 512 MB, and a sleeping or
+  // restarting database is unreachable rather than broken. Both are 503s the
+  // visitor can act on, not 500s that read as "the site is broken".
+  else if (
+    err.name === 'MongoServerSelectionError' ||
+    err.name === 'MongoNetworkError' ||
+    err.name === 'MongoNotConnectedError'
+  ) {
+    status = 503;
+    message = 'The database is temporarily unreachable. Please try again in a moment.';
+  } else if (/over your space quota|quota exceeded|you are over/i.test(err.message || '')) {
+    status = 503;
+    message =
+      'The site has reached its storage limit, so new posts are paused. Please try again later.';
+  }
+
   // --- JWT errors --------------------------------------------------------
   else if (err.name === 'JsonWebTokenError') {
     status = 401;

@@ -249,6 +249,8 @@ const createListing = asyncHandler(async (req, res) => {
         reviews: [],
         ratingSummary: Review.summarize([]),
       },
+      // Set when image storage was unavailable and we saved the listing anyway.
+      ...(req.uploadWarning ? { warning: req.uploadWarning } : {}),
     });
   } catch (err) {
     // Validation failed after multer already wrote files — don't leak orphans.
@@ -309,6 +311,7 @@ const updateListing = asyncHandler(async (req, res) => {
         reviews: reviews.map((r) => r.toJSON()),
         ratingSummary: Review.summarize(reviews),
       },
+      ...(req.uploadWarning ? { warning: req.uploadWarning } : {}),
     });
   } catch (err) {
     await Promise.all(newImages.map(removeStoredImage));

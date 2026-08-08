@@ -1,0 +1,54 @@
+name: Keep API awake
+
+# Render's free tier idles a service out after ~15 minutes with no traffic, and
+# waking it takes 30-60s. Pinging the health endpoint keeps it warm so visitors
+# do not pay that cost.
+#
+# Worth knowing before relying on this:
+#   * Free instance-hours are capped at 750/month. Staying awake around the
+#     clock uses ~730, so this fits — but only if this is your ONLY free
+#     service. Add a second and you will exceed the cap and both get suspended.
+#   * GitHub's scheduled runs are best-effort and are often several minutes
+#     late, so an occasional cold start still slips through. A dedicated pinger
+#     (cron-job.org, UptimeRobot) is more punctual if that matters.
+#   * GitHub disables scheduled workflows on repos with no commits for 60 days.
+#   * Delete this file, or switch the schedule off, if you move to a paid plan
+#     or decide the cold start is acceptable.
+
+on:
+  schedule:
+    # Every 10 minutes, giving headroom against the ~15 minute idle window.
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {}
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    name: Ping health endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Wake the API
+        run: |
+          URL="https://campus-nest-api.onrender.com/api/health"
+
+          # A cold start can take up to a minute, so allow generous time and
+          # a couple of attempts before calling it a failure.
+          for attempt in 1 2 3; do
+            code=$(curl -sS -o /tmp/body.json -w '%{http_code}' --max-time 90 "$URL" || echo "000")
+            if [ "$code" = "200" ]; then
+              echo "OK (attempt $attempt): $(cat /tmp/body.json)"
+              exit 0
+            fi
+            echo "attempt $attempt returned HTTP $code, retrying..."
+            sleep 15
+          done
+
+          echo "::warning::Health check did not return 200 after 3 attempts."
+          # Do not fail the workflow: a red X every 10 minutes is noise, and the
+          # service being briefly down is not something this job can fix.
+          exit 0

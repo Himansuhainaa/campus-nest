@@ -8,7 +8,11 @@ export default function NewListing() {
   const handleSubmit = async (formData) => {
     try {
       const { data } = await api.post('/listings', formData);
-      navigate(`/listings/${data.listing._id}`, { replace: true });
+      // `warning` is set when the listing saved but image storage was down.
+      navigate(`/listings/${data.listing._id}`, {
+        replace: true,
+        state: data.warning ? { notice: data.warning } : null,
+      });
     } catch (err) {
       // Re-thrown so ListingForm shows it inline instead of losing the input.
       throw new Error(getErrorMessage(err, 'Could not publish this listing.'));

@@ -12,8 +12,16 @@ const authRoutes = require('./routes/auth.routes');
 const listingRoutes = require('./routes/listing.routes');
 const reviewRoutes = require('./routes/review.routes');
 
+const { generalLimiter } = require('./middleware/rateLimit');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Render/Railway/Vercel put a proxy in front of the app. Without this the
+// client IP is always the proxy's, which would make rate limiting global
+// instead of per-visitor. `1` = trust exactly one hop, not any X-Forwarded-For
+// a client cares to invent.
+app.set('trust proxy', 1);
 
 /* ------------------------------- CORS ----------------------------------- */
 // CLIENT_ORIGIN is a comma-separated allowlist, e.g.
@@ -68,6 +76,9 @@ app.get('/', (_req, res) => {
     docs: '/api/health, /api/auth, /api/listings, /api/reviews',
   });
 });
+
+// Applied after /api/health so uptime checks are never rate limited.
+app.use('/api', generalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
