@@ -81,9 +81,13 @@ app.get('/api/health', (_req, res) => {
           process.env.CLOUDINARY_API_SECRET
       ),
     },
-    // Which commit and runtime are actually live. Render injects the commit;
-    // both have already caused confusion by silently differing from expectation.
-    commit: (process.env.RENDER_GIT_COMMIT || '').slice(0, 7) || 'unknown',
+    // Which commit and runtime are actually live. Render and Vercel each inject
+    // the commit under their own name; both have already turned out to differ
+    // silently from what was expected.
+    commit:
+      (process.env.RENDER_GIT_COMMIT || process.env.VERCEL_GIT_COMMIT_SHA || '')
+        .slice(0, 7) || 'unknown',
+    host: process.env.VERCEL ? 'vercel' : process.env.RENDER ? 'render' : 'local',
     node: process.version,
     uptime: Math.round(process.uptime()),
   });
@@ -94,6 +98,30 @@ app.get('/', (_req, res) => {
     name: 'CampusNest API',
     docs: '/api/health, /api/auth, /api/listings, /api/reviews',
   });
+});
+
+/* ------------------------- serverless DB connection ----------------------- */
+// On a long-lived server, start() connects once at boot. In a serverless
+// runtime the app is imported per cold start and start() never runs, so the
+// connection has to be established lazily and then reused: the promise is
+// cached at module scope, which survives across warm invocations.
+let connectionPromise = null;
+
+function ensureDbConnected() {
+  if (mongoose.connection.readyState === 1) return Promise.resolve();
+  if (!connectionPromise) {
+    connectionPromise = connectDB().catch((err) => {
+      connectionPromise = null; // let the next request retry rather than wedging
+      throw err;
+    });
+  }
+  return connectionPromise;
+}
+
+// Only guards routes that touch the database — /api/health deliberately reports
+// on a disconnected database rather than failing.
+app.use('/api', (req, res, next) => {
+  ensureDbConnected().then(() => next(), next);
 });
 
 // Applied after /api/health so uptime checks are never rate limited.

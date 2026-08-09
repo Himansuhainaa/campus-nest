@@ -351,6 +351,33 @@ Deploy, then confirm `https://<your-service>.onrender.com/api/health` returns
 **Railway** (<https://railway.app>) is equivalent: new project from repo, set the root
 directory to `server`, start command `npm start`, and add the same variables.
 
+#### Or run the API serverless on Vercel (no sleeping)
+
+Render's free tier sleeps after 15 minutes and takes 30–60s to wake. Vercel's functions
+don't sleep the same way — a cold start is 1–3 seconds — and there is no instance-hour cap
+to run out of. The repo supports both with no code change:
+
+| | Root directory | Entry |
+| --- | --- | --- |
+| Render (long-lived server) | `server` | `npm start` → `src/index.js` calls `listen()` |
+| Vercel (serverless) | `server` | `api/index.js` exports the same Express app |
+
+`src/index.js` only calls `listen()` when it is the entry module, and connects to MongoDB
+lazily with the connection promise cached at module scope, so warm invocations reuse the
+socket instead of opening one per request.
+
+To use it: **Add New Project** → same repo → **Root Directory `server`** → set
+`MONGODB_URI`, `JWT_SECRET`, `CLOUDINARY_URL` and `CLIENT_ORIGIN` → deploy. Then point the
+frontend's `VITE_API_URL` at the new URL.
+
+> This only became possible once images moved to Cloudinary. While uploads were written to
+> local disk the API needed a real filesystem and could not run serverless at all.
+
+> **One trade-off:** rate limiting uses an in-memory store, and each serverless instance
+> keeps its own counter — so limits are per-instance rather than global and are weaker
+> under a distributed burst. Vercel's own platform protections and its $0 Hobby spend cap
+> are the backstop there. On a single long-lived Render instance the limits are exact.
+
 ### 3. Frontend — Vercel (or Netlify)
 
 **Vercel** (<https://vercel.com>) → *Add New Project* → import the repo:
