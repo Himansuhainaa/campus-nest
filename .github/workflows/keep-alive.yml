@@ -5,9 +5,10 @@ name: Keep API awake
 # do not pay that cost.
 #
 # Worth knowing before relying on this:
-#   * Free instance-hours are capped at 750/month. Staying awake around the
-#     clock uses ~730, so this fits — but only if this is your ONLY free
-#     service. Add a second and you will exceed the cap and both get suspended.
+#   * Free instance-hours are capped at 750/month, SHARED across every free web
+#     service on the account. The schedule below is sized to stay well under
+#     that. If you add a second free service, revisit it — going over does not
+#     degrade anything, it suspends the service outright.
 #   * GitHub's scheduled runs are best-effort and are often several minutes
 #     late, so an occasional cold start still slips through. A dedicated pinger
 #     (cron-job.org, UptimeRobot) is more punctual if that matters.
@@ -17,8 +18,18 @@ name: Keep API awake
 
 on:
   schedule:
-    # Every 10 minutes, giving headroom against the ~15 minute idle window.
-    - cron: '*/10 * * * *'
+    # Every 10 minutes, but only 01:00-18:59 UTC (06:30-00:29 IST) — roughly
+    # when people are actually awake and using the site.
+    #
+    # This window is a budget decision, not a preference. Free tier allows 750
+    # instance-hours a month; pinging around the clock costs ~744 in a 31-day
+    # month, leaving a 6-hour margin before Render SUSPENDS the service. An 18
+    # hour window costs ~558 and leaves ~190 hours spare — enough to absorb
+    # real overnight traffic waking it anyway.
+    #
+    # Cost of the trade: a visitor arriving in the small hours gets one cold
+    # start, which the frontend now explains rather than erroring on.
+    - cron: '*/10 1-18 * * *'
   workflow_dispatch: {}
 
 concurrency:

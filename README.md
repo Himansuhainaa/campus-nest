@@ -425,10 +425,15 @@ the next request takes 30–60 seconds to wake it. Three things handle this:
 - After 5 seconds a banner explains what's happening rather than leaving a bare spinner:
   *"Waking the server up… the first load after a quiet spell can take up to a minute."*
 
-`.github/workflows/keep-alive.yml` also pings `/api/health` every 10 minutes to keep it
-warm. Read the comments at the top before relying on it — notably, staying awake uses ~730
-of your 750 free instance-hours a month, so it only works if this is your **only** free
-service.
+`.github/workflows/keep-alive.yml` also pings `/api/health` every 10 minutes during
+01:00–18:59 UTC to keep it warm through normal waking hours.
+
+That window is a budget decision. Free tier allows **750 instance-hours a month, shared
+across every free web service on the account**. Pinging around the clock costs ~744 in a
+31-day month — a 6-hour margin before Render **suspends** the service, which no amount of
+application code survives. The 18-hour window costs ~558 and leaves ~190 spare. The trade
+is that a visitor arriving overnight gets one cold start, which the frontend explains
+rather than erroring on.
 
 **The app limits itself rather than falling over.** Every free tier here has a ceiling, and
 hitting one shouldn't take the site down:
