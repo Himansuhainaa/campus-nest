@@ -11,6 +11,7 @@ const { ApiError, notFoundHandler, errorHandler } = require('./utils/errorHandle
 const authRoutes = require('./routes/auth.routes');
 const listingRoutes = require('./routes/listing.routes');
 const reviewRoutes = require('./routes/review.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const { generalLimiter } = require('./middleware/rateLimit');
 
@@ -130,6 +131,7 @@ app.use('/api', generalLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/listings', listingRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/admin', adminRoutes);
 
 /* ------------------------------ errors ---------------------------------- */
 app.use(notFoundHandler);

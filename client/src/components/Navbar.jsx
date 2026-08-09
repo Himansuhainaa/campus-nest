@@ -55,6 +55,11 @@ export default function Navbar() {
               <NavLink to="/profile" className={navLinkClass}>
                 Profile
               </NavLink>
+              {user.role === 'admin' && (
+                <NavLink to="/admin" className={navLinkClass}>
+                  Moderation
+                </NavLink>
+              )}
               <button type="button" onClick={handleLogout} className="btn-ghost">
                 Log out
               </button>
@@ -107,6 +112,11 @@ export default function Navbar() {
                 <NavLink to="/profile" className={navLinkClass}>
                   Profile
                 </NavLink>
+                {user.role === 'admin' && (
+                  <NavLink to="/admin" className={navLinkClass}>
+                    Moderation
+                  </NavLink>
+                )}
                 <Link to="/listings/new" className="btn-primary mt-2 w-full">
                   Add listing
                 </Link>

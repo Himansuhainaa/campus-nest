@@ -63,6 +63,45 @@ const reviewSchema = new mongoose.Schema(
       min: 1,
       max: 5,
     },
+    /**
+     * Moderation. A hidden review stays in the database (so the author is not
+     * silently able to post a replacement, and so a mistake is reversible) but
+     * is excluded from public reads and from rating averages.
+     */
+    hidden: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    hiddenReason: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
+    reports: {
+      type: [
+        new mongoose.Schema(
+          {
+            user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+            reason: {
+              type: String,
+              required: true,
+              enum: ['spam', 'offensive', 'not-a-real-tenant', 'personal-info', 'other'],
+            },
+            detail: { type: String, trim: true, maxlength: 500 },
+            createdAt: { type: Date, default: Date.now },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+      select: false, // reporters are never exposed on public reads
+    },
+    reportCount: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
   },
   {
     timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },

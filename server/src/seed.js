@@ -6,7 +6,23 @@
  * WARNING: this wipes the User, Listing and Review collections in the database
  * that MONGODB_URI points at. It refuses to run when NODE_ENV=production unless
  * you pass --force.
- */
+ *
+ * ---------------------------------------------------------------------------
+ * ABOUT THIS DATA
+ *
+ * The cities, neighbourhoods, colleges and coordinates are real, so the map and
+ * the school search behave like the finished product. Every PROPERTY NAME is
+ * invented, and so is every review.
+ *
+ * That line is deliberate. Reviews here are critical of landlords, deposits and
+ * maintenance. Attaching that to a real, findable business — one that never
+ * agreed to be listed and whose reviews were written by nobody — is defamation
+ * risk with no upside. Invented names carry none of that and look identical to
+ * a visitor.
+ *
+ * Replace this with real listings you have gathered yourself before inviting
+ * real users; sample data is for making an empty site legible, not for traction.
+ * ------------------------------------------------------------------------- */
 require('dotenv').config();
 
 const mongoose = require('mongoose');
@@ -21,155 +37,169 @@ const DEMO_PASSWORD = 'password123';
 // The first three are the "demo accounts" advertised in the README; the rest
 // exist so every listing has a few different voices reviewing it.
 const users = [
-  { key: 'maya',   name: 'Maya Alvarez',    email: 'maya@campusnest.dev',   school: 'Kingsley State University' },
-  { key: 'devin',  name: 'Devin Okafor',    email: 'devin@campusnest.dev',  school: 'Marlowe College' },
-  { key: 'priya',  name: 'Priya Raghavan',  email: 'priya@campusnest.dev',  school: 'Fairhaven Institute of Technology' },
-  { key: 'sam',    name: 'Sam Whitaker',    email: 'sam@campusnest.dev',    school: 'Lakeview University' },
-  { key: 'noor',   name: 'Noor Haddad',     email: 'noor@campusnest.dev',   school: 'Kingsley State University' },
-  { key: 'tobias', name: 'Tobias Lindqvist', email: 'tobias@campusnest.dev', school: 'Marlowe College' },
+  { key: 'ananya', name: 'Ananya Iyer',    email: 'ananya@campusnest.dev',  school: 'Savitribai Phule Pune University' },
+  { key: 'rohan',  name: 'Rohan Deshmukh', email: 'rohan@campusnest.dev',   school: 'Bangalore University' },
+  { key: 'fatima', name: 'Fatima Sheikh',  email: 'fatima@campusnest.dev',  school: 'University of Delhi' },
+  { key: 'karthik', name: 'Karthik Menon', email: 'karthik@campusnest.dev', school: 'Anna University' },
+  { key: 'ishita', name: 'Ishita Bose',    email: 'ishita@campusnest.dev',  school: 'Savitribai Phule Pune University' },
+  { key: 'aditya', name: 'Aditya Rane',    email: 'aditya@campusnest.dev',  school: 'Bangalore University' },
 ];
 
 /* ------------------------------ listings -------------------------------- */
+// Real areas and colleges. Invented building names.
 const listings = [
   {
-    key: 'oakline',
-    owner: 'maya',
-    title: 'Oakline Flats — 2BR with in-unit laundry',
-    address: '412 Oakline Ave, Kingsley, OH',
-    school: 'Kingsley State University',
+    key: 'kothrud2bhk',
+    owner: 'ananya',
+    title: 'Sunhaven Residency — 2BHK, walk to Kothrud depot',
+    address: 'Lane 4, Dahanukar Colony, Kothrud, Pune 411038',
+    school: 'Savitribai Phule Pune University',
     description:
-      'Two-bedroom on the second floor of a small walk-up, eight minutes from the engineering quad. In-unit washer/dryer, dishwasher, and a radiator that actually keeps up in February. Street parking is free after 6pm. Landlord lives two blocks away and handles most things same-week.',
-    rentPerMonth: 1250,
+      'Two-bedroom flat on the third floor of a small society in Dahanukar Colony. Ten minutes on foot to Kothrud depot, so buses to anywhere in Pune are easy. Society has covered two-wheeler parking and a watchman until 10pm. Water supply is twice a day and has never failed in two years. Owner lives in Baner and visits maybe once a month.',
+    rentPerMonth: 22000,
     bedrooms: 2,
-    lat: 40.0012,
-    lng: -83.0141,
+    lat: 18.5074,
+    lng: 73.8077,
   },
   {
-    key: 'brickyard',
-    owner: 'noor',
-    title: 'Brickyard Sublet — private room, May–Aug',
-    address: '77 Brickyard Ln, Kingsley, OH',
-    school: 'Kingsley State University',
+    key: 'karvenagarpg',
+    owner: 'ishita',
+    title: 'Meghdoot Girls PG — single room with attached bath',
+    address: 'Near Cummins College, Karvenagar, Pune 411052',
+    school: 'Savitribai Phule Pune University',
     description:
-      'Summer sublet in a four-person house. Your room is the big one at the back with two windows and a desk that stays. Shared kitchen is huge, backyard has a grill. Housemates are two grad students and a nurse, all quiet on weeknights. Utilities split four ways, usually about $45/month each.',
-    rentPerMonth: 620,
+      'Single occupancy room in a girls-only PG, five minutes from Cummins. Attached bathroom with a geyser that works. Rent includes two meals on weekdays and breakfast on weekends; the food is homely North Indian, not hostel mess food. Gate closes at 10:30pm, which is strict and non-negotiable. Wi-Fi is included but shared across sixteen rooms.',
+    rentPerMonth: 11500,
     bedrooms: 1,
-    lat: 39.9948,
-    lng: -83.0203,
+    lat: 18.4869,
+    lng: 73.8203,
   },
   {
-    key: 'pemberton',
-    owner: 'devin',
-    title: 'Pemberton Court Studio — steps from the library',
-    address: '1900 Pemberton Ct #3C, Kingsley, OH',
-    school: 'Kingsley State University',
+    key: 'aundhstudio',
+    owner: 'aditya',
+    title: 'Parijat Studio — furnished, above a bakery in Aundh',
+    address: 'ITI Road, Aundh, Pune 411007',
+    school: 'Savitribai Phule Pune University',
     description:
-      'Compact studio in a managed building right across from the main library. Card-access front door, laundry in the basement, heat and water included in rent. It is small — the bed and desk take most of it — but you cannot beat walking out the door and being in a study carrel four minutes later.',
-    rentPerMonth: 890,
+      'Compact furnished studio on ITI Road. Bed, wardrobe, study table and a small kitchenette all included, so you move in with a suitcase. The bakery downstairs means the stairwell smells like bread every morning and there is noise from 6am deliveries. Very well connected — autos are always available and Aundh has everything within walking distance.',
+    rentPerMonth: 15000,
     bedrooms: 0,
-    lat: 40.0035,
-    lng: -83.0098,
+    lat: 18.5590,
+    lng: 73.8078,
   },
   {
-    key: 'thornfield',
-    owner: 'priya',
-    title: 'Thornfield House — 4BR for a full group',
-    address: '23 Thornfield Rd, Marlowe, MA',
-    school: 'Marlowe College',
+    key: 'koramangala3bhk',
+    owner: 'rohan',
+    title: 'Neelkanth Nivas — 3BHK for a group, 5th Block',
+    address: '5th Block, Koramangala, Bengaluru 560095',
+    school: 'Bangalore University',
     description:
-      'Whole house rental, best if you already have a group of four. Big front porch, two full bathrooms, and a basement that fits bikes and ski gear. Kitchen was redone a couple of years ago. It is on a corner so the front bedroom hears traffic in the morning; the back two are silent.',
-    rentPerMonth: 2600,
-    bedrooms: 4,
-    lat: 42.3761,
-    lng: -72.5223,
+      'Three-bedroom independent floor in 5th Block. Best if you already have a group of three. Big shared balcony, borewell plus Cauvery water, and a landlord who lives on the ground floor and is genuinely reasonable. Rent is high but you are in Koramangala — everything is a walk away. Two-wheeler parking for three, no car parking.',
+    rentPerMonth: 48000,
+    bedrooms: 3,
+    lat: 12.9345,
+    lng: 77.6265,
   },
   {
-    key: 'greenhollow',
-    owner: 'tobias',
-    title: 'Green Hollow Apartments — 1BR, utilities included',
-    address: '580 Green Hollow Dr, Marlowe, MA',
-    school: 'Marlowe College',
+    key: 'btmpg',
+    owner: 'karthik',
+    title: 'Sapphire Co-living — twin sharing in BTM Layout',
+    address: '2nd Stage, BTM Layout, Bengaluru 560076',
+    school: 'Bangalore University',
     description:
-      'One bedroom in a 30-unit complex on the shuttle line — the campus loop stops right outside and runs until 1am. Rent covers heat, water and trash. Gym in the clubhouse is small but has a squat rack. Cats allowed with a deposit, dogs are not.',
-    rentPerMonth: 1420,
+      'Twin-sharing room in a co-living building. Rent covers electricity, cleaning twice a week, and a decent gym in the basement. Fibre internet is genuinely fast. The building is full of working professionals rather than students, so it is quiet on weeknights. Deposit is two months and they do return it, but it takes about six weeks.',
+    rentPerMonth: 13500,
     bedrooms: 1,
-    lat: 42.3688,
-    lng: -72.5301,
+    lat: 12.9166,
+    lng: 77.6101,
   },
   {
-    key: 'millrace',
-    owner: 'devin',
-    title: 'Millrace Loft — converted mill, exposed brick',
-    address: '4 Millrace Way, Marlowe, MA',
-    school: 'Marlowe College',
+    key: 'jayanagar1bhk',
+    owner: 'aditya',
+    title: 'Ashirwad Nilaya — 1BHK near Jayanagar 4th Block',
+    address: '4th Block, Jayanagar, Bengaluru 560011',
+    school: 'Bangalore University',
     description:
-      'Loft in an old paper mill by the river. Fourteen-foot ceilings, original brick, enormous windows. It is genuinely a beautiful place to live and also genuinely expensive to heat in winter — budget for that. Twenty minutes to campus on foot, ten by bike along the river path.',
-    rentPerMonth: 1780,
+      'One-bedroom on the first floor of an old independent house. High ceilings, proper cross-ventilation, and a small balcony that gets morning sun. It is an older building so the plumbing occasionally complains, but the owner fixes things within a day or two. Jayanagar 4th Block market is a ten-minute walk.',
+    rentPerMonth: 19000,
     bedrooms: 1,
     // No coordinates on purpose: exercises the "listing without a map pin" path.
   },
   {
-    key: 'saltcedar',
-    owner: 'sam',
-    title: 'Saltcedar Commons — 3BR townhouse',
-    address: '2211 Saltcedar Blvd, Fairhaven, TX',
-    school: 'Fairhaven Institute of Technology',
+    key: 'mukherjeenagar',
+    owner: 'fatima',
+    title: 'Vidya Bhawan — single room, Mukherjee Nagar',
+    address: 'Batra Cinema Road, Mukherjee Nagar, Delhi 110009',
+    school: 'University of Delhi',
     description:
-      'Three-bedroom townhouse in a quiet development about a mile south of campus. Attached garage, small fenced yard, central AC that keeps up through August. There is a bus every fifteen minutes from the corner. Best value in the area if you can fill all three rooms.',
-    rentPerMonth: 1950,
-    bedrooms: 3,
-    lat: 30.2807,
-    lng: -97.7392,
+      'Single room in a building full of students preparing for exams, so it is silent from about 9pm onward. Room is small but has a proper study table, a fan and a window. Shared bathroom on each floor, cleaned daily. Inverter backup covers the lights and fan during cuts. Coaching centres and cheap food are all within five minutes.',
+    rentPerMonth: 9500,
+    bedrooms: 1,
+    lat: 28.7041,
+    lng: 77.2100,
   },
   {
-    key: 'junipergate',
-    owner: 'maya',
-    title: 'Juniper Gate — 2BR with a real desk setup',
-    address: '905 Juniper Gate, Fairhaven, TX',
-    school: 'Fairhaven Institute of Technology',
+    key: 'hudsonlines',
+    owner: 'ananya',
+    title: 'Shanti Kunj — 2BHK share near North Campus',
+    address: 'Hudson Lane, GTB Nagar, Delhi 110009',
+    school: 'University of Delhi',
     description:
-      'Purpose-built student housing, so every bedroom comes with a proper desk, chair and shelving rather than an afterthought. Fiber internet is included and it is fast. The courtyard gets loud on Friday nights — ask for a unit facing the parking side if that matters to you.',
-    rentPerMonth: 1520,
+      'Two-bedroom flat on Hudson Lane, which means you are surrounded by cafes and a two-minute walk from GTB Nagar metro. Convenient beyond belief and loud until midnight on weekends. Flat itself is well maintained with a proper kitchen. Landlord is fine about visitors, strict about the rent date.',
+    rentPerMonth: 32000,
     bedrooms: 2,
-    lat: 30.2891,
-    lng: -97.7311,
+    lat: 28.6996,
+    lng: 77.2054,
   },
   {
-    key: 'harborlight',
-    owner: 'priya',
-    title: 'Harborlight Studio — cheapest thing near campus',
-    address: '18 Harborlight St, Lakeview, WI',
-    school: 'Lakeview University',
+    key: 'satyaniketan',
+    owner: 'karthik',
+    title: 'Rosewood Apartments — 1BHK, Satya Niketan',
+    address: 'Satya Niketan, South Campus, Delhi 110021',
+    school: 'University of Delhi',
     description:
-      'Small studio above a hardware store. It is not fancy and the floors slope, but it is clean, dry, and the price is unbeatable for a ten-minute walk to the union. Owner is an older gentleman who does his own repairs — slow but thorough. No laundry in the building; there is a laundromat next door.',
-    rentPerMonth: 745,
-    bedrooms: 0,
-    lat: 43.0781,
-    lng: -89.4152,
+      'One-bedroom in a newer building in Satya Niketan, walking distance to South Campus colleges. Power backup for the whole flat, which matters in a Delhi summer. Reasonably quiet given the location. The main downside is the price — you are paying for the postcode, not the flat.',
+    rentPerMonth: 27000,
+    bedrooms: 1,
+    lat: 28.5885,
+    lng: 77.1668,
   },
   {
-    key: 'kestrel',
-    owner: 'sam',
-    title: 'Kestrel Point — lakeside 2BR with parking',
-    address: '340 Kestrel Point Rd, Lakeview, WI',
-    school: 'Lakeview University',
+    key: 'guindypg',
+    owner: 'rohan',
+    title: 'Marina Men’s PG — twin sharing near Guindy',
+    address: 'Ekkatuthangal, Guindy, Chennai 600032',
+    school: 'Anna University',
     description:
-      'Two-bedroom with a partial lake view and a dedicated parking spot, which is the real selling point here in winter. Building has secure entry and a package room. Fifteen-minute walk along the lake path to the science campus, longer if you are heading to the business school.',
-    rentPerMonth: 1680,
+      'Twin sharing in a men’s PG about fifteen minutes from Anna University by bus. Three meals included and the food is properly South Indian — sambar that tastes like someone’s mother made it. Rooms have AC but it is metered separately. Guindy metro is close, which makes the rest of Chennai reachable.',
+    rentPerMonth: 8500,
+    bedrooms: 1,
+    lat: 13.0067,
+    lng: 80.2206,
+  },
+  {
+    key: 'velachery2bhk',
+    owner: 'fatima',
+    title: 'Kadambari Flats — 2BHK with covered parking',
+    address: 'Velachery Main Road, Chennai 600042',
+    school: 'Anna University',
+    description:
+      'Two-bedroom flat in a gated apartment block on Velachery Main Road. Covered parking, lift, and a genuine security desk. The building has a generator, so power cuts are a non-event. Velachery floods in a heavy monsoon — this block is on higher ground and has not, but ask neighbours before you sign anywhere in this area.',
+    rentPerMonth: 24000,
     bedrooms: 2,
-    lat: 43.0724,
-    lng: -89.4048,
+    lat: 12.9756,
+    lng: 80.2207,
   },
   {
-    key: 'wrenfield',
-    owner: 'tobias',
-    title: 'Wrenfield Row — 3BR, big kitchen, older building',
-    address: '61 Wrenfield Row, Lakeview, WI',
-    school: 'Lakeview University',
+    key: 'adyarshare',
+    owner: 'ishita',
+    title: 'Sea Breeze Annexe — single room in Adyar',
+    address: 'Gandhi Nagar, Adyar, Chennai 600020',
+    school: 'Anna University',
     description:
-      'Three bedrooms in a 1920s building with the enormous kitchen that implies. Great for anyone who actually cooks. Radiator heat is included and runs hot. Windows are original and single-paned, so it is drafty and you will hear the street. Management company is responsive by email, less so by phone.',
-    rentPerMonth: 1490,
-    bedrooms: 3,
+      'Single room in the annexe of a family house in Gandhi Nagar. Separate entrance so you come and go freely, but the owners are next door and it is a family setting — no late-night gatherings. Quiet, leafy street. Beach is a twenty-minute walk. Rent includes water; electricity is on your own meter.',
+    rentPerMonth: 12000,
+    bedrooms: 1,
     // No coordinates on purpose.
   },
 ];
@@ -177,57 +207,46 @@ const listings = [
 /* ------------------------------- reviews -------------------------------- */
 // r = [noise, landlordResponsiveness, wifi, safety, value]
 const reviews = [
-  // Oakline Flats
-  { listing: 'oakline', author: 'noor',   r: [4, 5, 4, 5, 4], comment: 'Lived here two years. The laundry in the unit is the thing you will appreciate most in week three of the semester. Landlord replaced the fridge within four days of me emailing about it.' },
-  { listing: 'oakline', author: 'devin',  r: [3, 5, 4, 4, 4], comment: 'Solid place. The street gets a bit loud on game days but that is true of the whole neighborhood. Heat works, which is more than I can say for my last apartment.' },
-  { listing: 'oakline', author: 'sam',    r: [4, 4, 3, 5, 3], comment: 'Good apartment, fair price. Wifi was fine for classes but I had to run an ethernet cable to the back bedroom for anything heavy.' },
+  { listing: 'kothrud2bhk', author: 'ishita', r: [4, 4, 4, 5, 4], comment: 'Lived here two years with a flatmate. The location is the real value — you can get anywhere in Pune from Kothrud depot without ever needing a cab. Water pressure on the third floor is fine, which is not a given around here.' },
+  { listing: 'kothrud2bhk', author: 'rohan',  r: [3, 4, 4, 5, 4], comment: 'Solid society, decent neighbours, watchman actually pays attention. Gets a bit loud during Ganpati but that is all of Pune. Owner returned the full deposit without any argument, which surprised me.' },
+  { listing: 'kothrud2bhk', author: 'karthik', r: [4, 3, 3, 5, 3], comment: 'Good flat overall. Wi-Fi depends on whichever provider you pick, the building has no arrangement. Took about ten days to get a leaking tap fixed.' },
 
-  // Brickyard Sublet
-  { listing: 'brickyard', author: 'maya',  r: [4, 3, 4, 4, 5], comment: 'Took this sublet last summer and it was a great deal. Housemates kept to themselves, the backyard was genuinely nice in July. Getting the deposit back took two rounds of texting.' },
-  { listing: 'brickyard', author: 'priya', r: [5, 3, 3, 4, 5], comment: 'Very quiet street. The room is big and the closet is deep. Wifi is whatever the house router is, so it slows down when everyone is home.' },
+  { listing: 'karvenagarpg', author: 'ananya', r: [4, 4, 3, 5, 5], comment: 'Stayed here through my second year. The food genuinely made the difference — after a long day you are not hunting for dinner. The 10:30 gate rule is real and they do not bend it, so know that before you sign.' },
+  { listing: 'karvenagarpg', author: 'fatima', r: [5, 4, 2, 5, 4], comment: 'Very safe, which is why my parents agreed. Rooms are clean and the attached bathroom is worth the extra rent. Wi-Fi struggles at night when everyone is online — I ended up using mobile data for classes.' },
 
-  // Pemberton Court Studio
-  { listing: 'pemberton', author: 'maya',  r: [3, 4, 5, 5, 3], comment: 'The location does most of the work here. Being able to roll out of bed and be in the library is worth a lot during finals. It is small — measure your furniture first.' },
-  { listing: 'pemberton', author: 'noor',  r: [2, 4, 5, 5, 3], comment: 'Building wifi is genuinely fast. The hallway carries sound though, and the door slams. Heat included is a nice buffer against the January bill.' },
-  { listing: 'pemberton', author: 'tobias', r: [3, 3, 5, 4, 2], comment: 'Fine building, but you are paying a real premium for the four-minute walk. If you have a bike, look two streets over and save two hundred a month.' },
+  { listing: 'aundhstudio', author: 'ananya', r: [2, 4, 5, 4, 3], comment: 'Furnished really does mean furnished, I moved in with one suitcase. But the bakery deliveries start at 6am and you will hear every crate. If you are a light sleeper this is not your place.' },
+  { listing: 'aundhstudio', author: 'fatima', r: [3, 5, 5, 4, 3], comment: 'Owner responds on WhatsApp within an hour, which is rare. Internet is properly fast. Aundh is expensive for what you get, but everything you need is within walking distance.' },
+  { listing: 'aundhstudio', author: 'rohan',  r: [2, 4, 5, 4, 2], comment: 'Fine studio, well located, overpriced. If you have a two-wheeler, look in Baner and save five thousand a month.' },
 
-  // Thornfield House
-  { listing: 'thornfield', author: 'devin', r: [3, 4, 4, 4, 5], comment: 'Split four ways this is the best value in Marlowe. The porch is where we spent every warm evening. Front bedroom really does hear the morning traffic — I would not put a light sleeper there.' },
-  { listing: 'thornfield', author: 'sam',   r: [4, 4, 4, 4, 5], comment: 'Big house, works well for a group that already gets along. Two bathrooms is the difference between civil and not. Basement stayed dry all winter.' },
+  { listing: 'koramangala3bhk', author: 'ananya', r: [3, 5, 4, 4, 4], comment: 'Split three ways this is defensible for Koramangala. Landlord living downstairs sounds intrusive but he is genuinely helpful and fixes things the same week. Balcony is where we spent every evening.' },
+  { listing: 'koramangala3bhk', author: 'ishita', r: [3, 5, 4, 4, 3], comment: 'Great flat, brutal rent. Water was never an issue even in April, which is more than my previous place in HSR managed. No car parking is worth knowing if anyone in your group drives.' },
 
-  // Green Hollow Apartments
-  { listing: 'greenhollow', author: 'priya', r: [4, 4, 4, 5, 4], comment: 'The shuttle stop outside is the whole pitch and it delivers — I never once drove to campus. Utilities included made budgeting simple. Gym is tiny but has what you need.' },
-  { listing: 'greenhollow', author: 'maya',  r: [4, 3, 4, 5, 4], comment: 'Comfortable one bedroom, well managed. Maintenance requests go through a portal and usually get handled in a couple of days. Nothing exciting, nothing wrong.' },
-  { listing: 'greenhollow', author: 'noor',  r: [5, 4, 3, 5, 3], comment: 'Very quiet complex, mostly grad students. Wifi in my unit was mediocre near the bedroom. Rent crept up at renewal.' },
+  { listing: 'btmpg', author: 'ananya', r: [4, 4, 5, 5, 4], comment: 'The fibre is not marketing, I got full speed consistently through a year of online classes. Mostly working professionals here so weeknights are quiet. Deposit came back in about six weeks as promised.' },
+  { listing: 'btmpg', author: 'fatima', r: [4, 3, 5, 5, 4], comment: 'Clean, well run, gym is small but has the basics. Support is via an app which is efficient but impersonal. Electricity being separate adds up in summer.' },
+  { listing: 'btmpg', author: 'ishita', r: [5, 4, 5, 5, 3], comment: 'Quiet building, safe at any hour, good internet. Twin sharing means you are dependent on getting a decent roommate — mine was fine, others were not so lucky.' },
 
-  // Millrace Loft
-  { listing: 'millrace', author: 'priya', r: [4, 4, 5, 4, 2], comment: 'It is a stunning apartment and I would live there again, but I want to be honest about the heating bill — it was over two hundred dollars in January and February. Budget for it.' },
-  { listing: 'millrace', author: 'tobias', r: [5, 4, 5, 4, 3], comment: 'The ceilings and the light are real. River path bike commute is the best part of the day. Not close enough to walk in bad weather.' },
+  { listing: 'jayanagar1bhk', author: 'rohan',  r: [4, 4, 3, 5, 4], comment: 'Old house charm with old house plumbing. Ceilings and ventilation mean you barely need a fan until April. Owner is elderly and does repairs himself, so slow but thorough.' },
+  { listing: 'jayanagar1bhk', author: 'karthik', r: [5, 4, 3, 5, 4], comment: 'Lovely quiet street, morning sun in the balcony, market ten minutes away. No lift and it is the first floor, which matters if you are hauling groceries.' },
 
-  // Saltcedar Commons
-  { listing: 'saltcedar', author: 'priya', r: [5, 4, 4, 5, 5], comment: 'Quiet development, mostly families and a few student groups. The AC handled a Texas August without complaint, which was my main worry. Garage is a genuine luxury.' },
-  { listing: 'saltcedar', author: 'maya',  r: [5, 3, 4, 5, 4], comment: 'Great space for three people. Landlord is slow to respond but does fix things eventually. Bus is reliable; I only drove to campus when I was running late.' },
-  { listing: 'saltcedar', author: 'devin', r: [4, 4, 4, 4, 4], comment: 'A mile out means you need a bike or the bus, but the tradeoff is a real yard and a real garage. Would recommend for a group of three that wants space.' },
+  { listing: 'mukherjeenagar', author: 'ananya', r: [5, 4, 3, 4, 5], comment: 'If you are preparing for an exam this is exactly the environment you want — the whole building goes silent by nine. Room is small, but the study table is proper and the chair does not wreck your back.' },
+  { listing: 'mukherjeenagar', author: 'karthik', r: [5, 4, 2, 4, 5], comment: 'Cheapest genuinely liveable room I found in Mukherjee Nagar. Shared bathroom is cleaned every day without fail. Wi-Fi is weak, most people buy their own dongle.' },
+  { listing: 'mukherjeenagar', author: 'aditya', r: [4, 3, 2, 4, 4], comment: 'Good value and a serious atmosphere. Inverter covers lights and fan only, so summer afternoons during a cut are rough. Landlord is fair but not fast.' },
 
-  // Juniper Gate
-  { listing: 'junipergate', author: 'sam',   r: [2, 4, 5, 4, 4], comment: 'The included fiber is not marketing — I got the full speed consistently. The courtyard noise on weekends is also not exaggerated. Ask for a parking-side unit.' },
-  { listing: 'junipergate', author: 'tobias', r: [3, 5, 5, 4, 4], comment: 'Front desk actually answers and maintenance shows up same day. Having a real desk and chair already in the room saved me a whole weekend of furniture shopping.' },
-  { listing: 'junipergate', author: 'devin',  r: [2, 4, 5, 4, 3], comment: 'Good building, well run, a little pricey for what it is. If you are a light sleeper this is not the place unless you get a quiet-side unit.' },
+  { listing: 'hudsonlines', author: 'rohan',  r: [2, 4, 4, 4, 4], comment: 'Two minutes from the metro and surrounded by places to eat — unbeatable for North Campus. The flip side is noise until midnight on weekends. Flat itself is genuinely well maintained.' },
+  { listing: 'hudsonlines', author: 'karthik', r: [2, 3, 4, 4, 3], comment: 'Location is the whole product. Kitchen is proper and we cooked most nights. Landlord is relaxed about guests and inflexible about the rent date — pay on the first.' },
 
-  // Harborlight Studio
-  { listing: 'harborlight', author: 'sam',    r: [3, 4, 3, 4, 5], comment: 'Cheapest legitimate place I found within walking distance, and it was clean and dry the whole year. Floors do slope — my desk chair rolled. Laundromat next door is fine.' },
-  { listing: 'harborlight', author: 'noor',   r: [3, 5, 2, 4, 5], comment: 'The owner fixed my radiator himself on a Sunday. Wifi is the weak point, I ended up paying for my own line. For the price I have no real complaints.' },
-  { listing: 'harborlight', author: 'tobias', r: [2, 4, 3, 3, 5], comment: 'You hear the hardware store loading dock in the morning. Everything else about it is honest value. Good first apartment.' },
+  { listing: 'satyaniketan', author: 'aditya', r: [4, 4, 4, 5, 3], comment: 'Power backup for the entire flat is the reason to pick this over cheaper options nearby. Walk to South Campus is short and safe even late. You are paying a Satya Niketan premium though.' },
+  { listing: 'satyaniketan', author: 'ishita', r: [4, 4, 4, 5, 3], comment: 'Newer building so everything works. Quieter than I expected for the area. Would recommend if the budget stretches, otherwise look one lane further out.' },
 
-  // Kestrel Point
-  { listing: 'kestrel', author: 'priya', r: [4, 4, 4, 5, 4], comment: 'The parking spot is worth more than the lake view in February. Secure entry and a package room meant nothing ever went missing. Walk to the science campus is pleasant.' },
-  { listing: 'kestrel', author: 'maya',  r: [4, 3, 5, 5, 3], comment: 'Nice building, good internet, safe. Management took about a week to respond to a leaky faucet. Rent is at the top of what I would pay here.' },
-  { listing: 'kestrel', author: 'noor',  r: [5, 4, 4, 5, 4], comment: 'Very quiet, lots of grad students. The lake path commute in fall is genuinely lovely. Business school walk is more like twenty-five minutes, not fifteen.' },
+  { listing: 'guindypg', author: 'ananya', r: [3, 4, 3, 4, 5], comment: 'The food is the reason to stay here. Three proper meals, and the sambar is genuinely good. AC metered separately catches people out — budget for it in summer.' },
+  { listing: 'guindypg', author: 'ishita', r: [3, 4, 3, 4, 5], comment: 'Well run and cheap for Chennai. Guindy metro nearby makes the city accessible. Rooms are basic but clean and the staff are decent people.' },
+  { listing: 'guindypg', author: 'fatima', r: [2, 3, 3, 4, 4], comment: 'Value is excellent. It is on a main road so there is constant traffic noise — ask for a room facing the back.' },
 
-  // Wrenfield Row
-  { listing: 'wrenfield', author: 'sam',   r: [2, 3, 4, 4, 4], comment: 'The kitchen is the reason to live here — three of us cooked constantly and never got in each other way. The windows are as drafty as advertised. Email the management company, do not call.' },
-  { listing: 'wrenfield', author: 'devin', r: [2, 3, 4, 4, 4], comment: 'Old building charm with old building problems. Heat is included and runs hot enough that the drafts did not actually matter much. Street noise is real.' },
-  { listing: 'wrenfield', author: 'maya',  r: [3, 2, 3, 4, 3], comment: 'Good bones, slow management. Took three weeks and several emails to get a broken window latch replaced. The kitchen almost makes up for it.' },
+  { listing: 'velachery2bhk', author: 'rohan',  r: [4, 4, 4, 5, 4], comment: 'Generator means power cuts simply do not affect you, which in Chennai is worth real money. Covered parking and a proper security desk. Ask about flooding history for any place in Velachery — this block was fine.' },
+  { listing: 'velachery2bhk', author: 'aditya', r: [4, 3, 4, 5, 4], comment: 'Comfortable flat in a well-run block. Lift works, security is attentive. Management responds through the association, so anything shared takes a while to move.' },
+
+  { listing: 'adyarshare', author: 'rohan',  r: [5, 5, 3, 5, 4], comment: 'Quiet leafy street and the owners are lovely people who leave you alone but are there if something breaks. Separate entrance means it never feels like living with a family. Beach walk on Sundays.' },
+  { listing: 'adyarshare', author: 'aditya', r: [5, 5, 2, 5, 4], comment: 'Very safe and very calm. No Wi-Fi arrangement so plan your own connection. It is a family house, so no late gatherings — that was clear from the start and honestly kept the place peaceful.' },
 ];
 
 /* -------------------------------- run ----------------------------------- */
@@ -260,7 +279,7 @@ async function seed() {
 
   const passwordHash = await User.hashPassword(DEMO_PASSWORD);
   const createdUsers = await User.create(
-    users.map(({ key, ...u }) => ({ ...u, passwordHash })) // eslint-disable-line no-unused-vars
+    users.map(({ key, ...u }) => ({ ...u, passwordHash, emailVerified: true })) // eslint-disable-line no-unused-vars
   );
   const userByKey = Object.fromEntries(users.map((u, i) => [u.key, createdUsers[i]]));
   console.log(`[seed] created ${createdUsers.length} users`);
@@ -293,6 +312,9 @@ async function seed() {
   schools.forEach((s) => console.log(`         - ${s}`));
   console.log('\n[seed] Demo logins (all use the same password):');
   users.slice(0, 3).forEach((u) => console.log(`         ${u.email}  /  ${DEMO_PASSWORD}`));
+  console.log(
+    '\n[seed] Property names and reviews are invented. Cities, areas and colleges are real.'
+  );
   console.log('');
 
   await disconnectDB();

@@ -58,11 +58,16 @@ function readComment(raw, { partial }) {
   return comment;
 }
 
-/** Recompute a listing's rollup after a write, so the client can update in place. */
+/**
+ * Recompute a listing's rollup after a write, so the client can update in place.
+ * Hidden (moderated) reviews are excluded — they must not influence ratings.
+ */
 async function summaryFor(listingId) {
-  const reviews = await Review.find({ listing: listingId });
+  const reviews = await Review.find({ listing: listingId, hidden: { $ne: true } });
   return Review.summarize(reviews);
 }
+
+const REPORT_REASONS = ['spam', 'offensive', 'not-a-real-tenant', 'personal-info', 'other'];
 
 /** POST /api/listings/:id/reviews (protected; one review per user per listing). */
 const createReview = asyncHandler(async (req, res) => {
@@ -152,4 +157,40 @@ const myReviews = asyncHandler(async (req, res) => {
   res.json({ reviews: reviews.filter((r) => r.listing).map((r) => r.toJSON()) });
 });
 
-module.exports = { createReview, updateReview, deleteReview, myReviews };
+/** POST /api/reviews/:id/report (protected) — flag a review for moderation. */
+const reportReview = asyncHandler(async (req, res) => {
+  const review = await Review.findById(req.params.id).select('+reports');
+  if (!review) throw ApiError.notFound('That review does not exist (or was already removed).');
+
+  if (review.author.toString() === req.user._id.toString()) {
+    throw ApiError.badRequest('You cannot report your own review — edit or delete it instead.');
+  }
+
+  const reason = typeof req.body.reason === 'string' ? req.body.reason.trim() : '';
+  if (!REPORT_REASONS.includes(reason)) {
+    throw ApiError.badRequest(`Reason must be one of: ${REPORT_REASONS.join(', ')}.`);
+  }
+
+  const detail = typeof req.body.detail === 'string' ? req.body.detail.trim() : '';
+  if (detail.length > 500) {
+    throw ApiError.badRequest('Extra detail must be 500 characters or fewer.');
+  }
+
+  const already = review.reports.some((r) => r.user.toString() === req.user._id.toString());
+  if (already) {
+    // Not an error worth blocking on — the outcome the reporter wants is already true.
+    return res.json({ message: 'You have already reported this review. A moderator will look at it.' });
+  }
+
+  review.reports.push({ user: req.user._id, reason, detail: detail || undefined });
+  review.reportCount = review.reports.length;
+  await review.save();
+
+  res.status(201).json({
+    message: 'Thanks — this review has been flagged for a moderator.',
+    reportCount: review.reportCount,
+  });
+});
+
+module.exports = { createReview, updateReview, deleteReview, myReviews, reportReview };
+module.exports.REPORT_REASONS = REPORT_REASONS;

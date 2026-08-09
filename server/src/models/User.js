@@ -29,6 +29,30 @@ const userSchema = new mongoose.Schema(
       trim: true,
       maxlength: [120, 'School name must be 120 characters or fewer.'],
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+      index: true,
+    },
+    /**
+     * When email delivery is not configured, accounts are created already
+     * verified — see utils/mailer.js. Verification only gates review writing,
+     * never reading, so an unverified account can still browse.
+     */
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: {
+      type: String,
+      select: false,
+      index: true,
+    },
+    verificationExpires: {
+      type: Date,
+      select: false,
+    },
   },
   {
     timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' },
@@ -36,6 +60,8 @@ const userSchema = new mongoose.Schema(
       virtuals: true,
       transform(_doc, ret) {
         delete ret.passwordHash;
+        delete ret.verificationToken;
+        delete ret.verificationExpires;
         delete ret.__v;
         return ret;
       },

@@ -60,6 +60,28 @@ const attachUser = asyncHandler(async (req, _res, next) => {
   next();
 });
 
+/**
+ * Admin gate. Runs after requireAuth.
+ *
+ * Admins are granted by the ADMIN_EMAILS env var rather than a database flag
+ * anyone could flip — see auth.controller. This just checks the resolved role.
+ */
+const requireAdmin = asyncHandler(async (req, _res, next) => {
+  if (req.user?.role !== 'admin') {
+    throw ApiError.forbidden('This area is for moderators only.');
+  }
+  next();
+});
+
+/** True when the email is listed in ADMIN_EMAILS (comma-separated). */
+function isAdminEmail(email) {
+  const list = (process.env.ADMIN_EMAILS || '')
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return list.includes(String(email || '').toLowerCase());
+}
+
 /** 403 unless `req.user` owns the given document (checked against `field`). */
 function requireOwnership(doc, req, field = 'createdBy', message) {
   const ownerId = doc[field]?._id ? doc[field]._id.toString() : String(doc[field]);
@@ -68,4 +90,11 @@ function requireOwnership(doc, req, field = 'createdBy', message) {
   }
 }
 
-module.exports = { requireAuth, attachUser, requireOwnership, signToken };
+module.exports = {
+  requireAuth,
+  requireAdmin,
+  attachUser,
+  requireOwnership,
+  signToken,
+  isAdminEmail,
+};

@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
 import { RATING_CATEGORIES } from './ReviewForm';
 import { initialsOf } from './ListingCard';
+import ReportDialog from './ReportDialog';
+import { useAuth } from '../context/AuthContext';
 
 function formatDate(value) {
   if (!value) return '';
@@ -22,9 +25,16 @@ export default function ReviewCard({
   deleting = false,
   showListing = false,
 }) {
+  const { user } = useAuth();
+  const [reporting, setReporting] = useState(false);
+
   const author = review.author || {};
   const listing = review.listing;
   const listingId = listing?._id || listing?.id;
+
+  // Only someone signed in who did not write it can report it.
+  const canReport =
+    Boolean(user) && !canManage && (author._id || author) !== user?._id;
 
   return (
     <article className="card p-5">
@@ -77,6 +87,23 @@ export default function ReviewCard({
           </div>
         ))}
       </dl>
+
+      {canReport && (
+        <div className="mt-4 flex justify-end border-t border-slate-100 pt-3">
+          <button
+            type="button"
+            onClick={() => setReporting(true)}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 transition-colors hover:text-red-600"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5" aria-hidden="true">
+              <path d="M3.5 2.75a.75.75 0 0 0-1.5 0v14.5a.75.75 0 0 0 1.5 0v-4.4l.9-.24a7.5 7.5 0 0 1 5.2.62 9 9 0 0 0 6.24.75l1.28-.32a.75.75 0 0 0 .57-.73V4.24a.75.75 0 0 0-.93-.73l-1.66.42a7.5 7.5 0 0 1-5.2-.62 9 9 0 0 0-6.24-.75l-.16.04v-.85Z" />
+            </svg>
+            Report
+          </button>
+        </div>
+      )}
+
+      {reporting && <ReportDialog review={review} onClose={() => setReporting(false)} />}
 
       {canManage && (
         <div className="mt-4 flex gap-2 border-t border-slate-100 pt-3">

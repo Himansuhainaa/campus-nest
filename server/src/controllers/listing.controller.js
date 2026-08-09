@@ -114,8 +114,17 @@ function ratingPipeline() {
     {
       $lookup: {
         from: Review.collection.name,
-        localField: '_id',
-        foreignField: 'listing',
+        let: { listingId: '$_id' },
+        // A moderated review must not count toward the rating, so the filter
+        // belongs inside the lookup rather than after it.
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$listing', '$$listingId'] },
+              hidden: { $ne: true },
+            },
+          },
+        ],
         as: 'listingReviews',
       },
     },
@@ -213,7 +222,7 @@ const getListing = asyncHandler(async (req, res) => {
   );
   if (!listing) throw ApiError.notFound('That listing does not exist (or was removed).');
 
-  const reviews = await Review.find({ listing: listing._id })
+  const reviews = await Review.find({ listing: listing._id, hidden: { $ne: true } })
     .populate('author', 'name school')
     .sort({ createdAt: -1 });
 
@@ -303,7 +312,10 @@ const updateListing = asyncHandler(async (req, res) => {
 
     await Promise.all(removed.map(removeStoredImage));
 
-    const reviews = await Review.find({ listing: listing._id }).populate('author', 'name school');
+    const reviews = await Review.find({
+      listing: listing._id,
+      hidden: { $ne: true },
+    }).populate('author', 'name school');
 
     res.json({
       listing: {

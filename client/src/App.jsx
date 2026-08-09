@@ -11,6 +11,8 @@ import EditListing from './pages/EditListing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Admin from './pages/Admin';
+import VerifyEmail from './pages/VerifyEmail';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -94,6 +96,15 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             }
           />
