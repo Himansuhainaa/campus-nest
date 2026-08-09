@@ -171,6 +171,33 @@ Open **<http://localhost:5173>**.
 The default `client/.env` already points at `http://localhost:5000/api`, so if you kept the
 default server port there is nothing to change.
 
+### Import real listings
+
+The seed is sample data — real cities, areas and colleges, but **invented property names
+and invented reviews**. That line is deliberate: the reviews criticise landlords, deposits
+and maintenance, and attaching that to a real, findable business that never agreed to be
+listed is defamation exposure with no upside.
+
+When you're ready for real places, use the importer instead:
+
+```bash
+cd campus-nest/server
+cp data/listings.example.json data/my-listings.json   # then fill it in
+npm run import -- data/my-listings.json --dry-run     # validate, write nothing
+npm run import -- data/my-listings.json               # actually import
+```
+
+| Behaviour | Detail |
+| --- | --- |
+| Non-destructive | Never deletes. Unlike `seed`, it adds to what's there. |
+| Validates first | One bad row fails the whole file *before* any write, so you never end up half-imported. |
+| Idempotent | Matches on school + address. Re-running updates rather than duplicating, so you can add places a few at a time. |
+| Attributed | Everything lands under a curator account, so bulk imports are distinguishable from user posts. |
+
+**It cannot create reviews, by design.** Listing a real property's name, address and rent is
+factual directory information — the same thing JustDial and Google Maps publish. Writing
+reviews for it yourself is not. Reviews come from real tenants or not at all.
+
 ### Run the tests
 
 ```bash

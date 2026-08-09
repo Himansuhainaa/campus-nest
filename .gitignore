@@ -10,3 +10,7 @@ Thumbs.db
 
 # Local working notes, not part of the project
 HANDOFF.md
+
+# Your own imported listings - keep private data out of the repo
+server/data/*.json
+!server/data/listings.example.json

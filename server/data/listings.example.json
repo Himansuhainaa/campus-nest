@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "Template for `npm run import -- data/your-file.json`.",
+    "Copy this file, replace the entries with real places you have verified,",
+    "and delete these _comment keys (they are ignored, but they are noise).",
+    "",
+    "Only factual details belong here: name, address, rent, size, coordinates.",
+    "There is deliberately no way to add reviews through this importer -- an",
+    "invented review about a real, findable landlord is a legal problem you do",
+    "not want. Reviews come from real tenants or not at all.",
+    "",
+    "Re-running the import updates listings matched on school + address rather",
+    "than creating duplicates, so you can add places a few at a time.",
+    "Use --dry-run to validate without writing anything."
+  ],
+
+  "owner": {
+    "_comment": "Optional. The account bulk-imported listings are attributed to.",
+    "name": "CampusNest",
+    "email": "listings@campusnest.dev",
+    "school": "CampusNest"
+  },
+
+  "listings": [
+    {
+      "_comment": "Every field below except lat/lng/images is required.",
+      "title": "Name of the building or PG as people actually call it",
+      "address": "Street, area, city, PIN",
+      "school": "The college students would search for",
+      "description": "At least 20 characters. Stick to facts you can verify: what is included in rent, how far the walk is, parking, water supply, gate timings.",
+      "rentPerMonth": 12000,
+      "bedrooms": 1,
+
+      "_comment_coords": "Optional, but a listing without them never shows on the map. Right-click the building on openstreetmap.org and choose 'Show address'.",
+      "lat": 18.5074,
+      "lng": 73.8077,
+
+      "_comment_images": "Optional. Absolute https URLs only, max 5. Use photos you took or have permission to use -- not results from an image search.",
+      "images": []
+    },
+    {
+      "title": "Second example — studio with no coordinates",
+      "address": "Some Road, Some Area, Some City 000000",
+      "school": "The college students would search for",
+      "description": "Leaving lat and lng out is fine. The listing works normally, it simply will not appear on the map view.",
+      "rentPerMonth": 8500,
+      "bedrooms": 0
+    }
+  ]
+}

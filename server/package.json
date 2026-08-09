@@ -12,6 +12,7 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node src/seed.js",
+    "import": "node src/import.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
