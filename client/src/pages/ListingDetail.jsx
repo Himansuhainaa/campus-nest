@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import api, { assetUrl, getErrorMessage } from '../api/axios';
+import { events } from '../lib/analytics';
 import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
 import ReviewCard from '../components/ReviewCard';
@@ -114,7 +115,10 @@ export default function ListingDetail() {
       setError('');
       try {
         const { data } = await api.get(`/listings/${id}`);
-        if (!cancelled) setListing(data.listing);
+        if (!cancelled) {
+          setListing(data.listing);
+          events.listingViewed(data.listing);
+        }
       } catch (err) {
         if (!cancelled) setError(getErrorMessage(err, 'Could not load this listing.'));
       } finally {
@@ -139,6 +143,15 @@ export default function ListingDetail() {
     [reviews, user]
   );
 
+  // The review form is shown to a signed-in non-owner who hasn't reviewed yet.
+  // Firing once it appears is the top of the "did they actually review" funnel.
+  const canReviewNow = Boolean(user && listing && !isOwner && !myReview);
+  useEffect(() => {
+    if (canReviewNow) events.reviewFormOpened(listing._id);
+    // Only re-fire when the listing changes, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canReviewNow, listing?._id]);
+
   // Arriving from Profile's "Edit" button: open that review's form straight away.
   useEffect(() => {
     const target = location.state?.editReviewId;
@@ -155,6 +168,7 @@ export default function ListingDetail() {
     setActionError('');
     try {
       const { data } = await api.post(`/listings/${id}/reviews`, payload);
+      events.reviewSubmitted(id, data.review?.overallRating);
       setListing((prev) =>
         prev
           ? { ...prev, reviews: [data.review, ...prev.reviews], ratingSummary: data.ratingSummary }

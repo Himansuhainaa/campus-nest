@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import api, { TOKEN_KEY, USER_KEY, getErrorMessage } from '../api/axios';
+import { identifyUser, resetAnalytics } from '../lib/analytics';
 
 const AuthContext = createContext(null);
 
@@ -23,12 +24,15 @@ export function AuthProvider({ children }) {
     if (token) localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(nextUser));
     setUser(nextUser);
+    // Tie analytics events to this user (id/school/role only — no name or email).
+    identifyUser(nextUser);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     setUser(null);
+    resetAnalytics();
   }, []);
 
   // Verify the stored token against the API once on boot.
@@ -45,6 +49,7 @@ export function AuthProvider({ children }) {
         if (cancelled) return;
         localStorage.setItem(USER_KEY, JSON.stringify(data.user));
         setUser(data.user);
+        identifyUser(data.user);
       })
       .catch((error) => {
         // Only drop the session for a real auth failure — not for a server that

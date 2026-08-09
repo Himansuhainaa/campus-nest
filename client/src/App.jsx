@@ -3,6 +3,7 @@ import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import WakingNotice from './components/WakingNotice';
+import { trackPageview } from './lib/analytics';
 import Home from './pages/Home';
 import Listings from './pages/Listings';
 import ListingDetail from './pages/ListingDetail';
@@ -15,10 +16,13 @@ import Admin from './pages/Admin';
 import VerifyEmail from './pages/VerifyEmail';
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-  }, [pathname]);
+    // Client-side routing means PostHog's automatic pageview only sees the first
+    // load; fire one per navigation so funnels see every step.
+    trackPageview(pathname + search);
+  }, [pathname, search]);
   return null;
 }
 

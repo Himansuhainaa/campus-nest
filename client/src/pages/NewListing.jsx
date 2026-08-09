@@ -1,13 +1,20 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/axios';
 import ListingForm from '../components/ListingForm';
+import { events } from '../lib/analytics';
 
 export default function NewListing() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    events.listingFormOpened();
+  }, []);
+
   const handleSubmit = async (formData) => {
     try {
       const { data } = await api.post('/listings', formData);
+      events.listingCreated(data.listing);
       // `warning` is set when the listing saved but image storage was down.
       navigate(`/listings/${data.listing._id}`, {
         replace: true,

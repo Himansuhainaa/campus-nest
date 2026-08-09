@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getErrorMessage } from '../api/axios';
+import { events } from '../lib/analytics';
 
 export default function Login() {
   const { login, user } = useAuth();
@@ -36,6 +37,7 @@ export default function Login() {
     setError('');
     try {
       await login(form.email.trim(), form.password);
+      events.loginCompleted();
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, 'Could not sign you in.'));

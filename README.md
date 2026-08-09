@@ -501,6 +501,22 @@ hitting one shouldn't take the site down:
 
 Set `DISABLE_RATE_LIMIT=true` to turn limiting off (the test suite does this automatically).
 
+**Product analytics is optional (PostHog).** Set `VITE_POSTHOG_KEY` in the client env and you
+get pageviews, autocaptured clicks and a set of named funnel events; leave it unset and the
+whole thing is a silent no-op. The library is **lazy-loaded** — with no key it never enters
+the bundle a visitor downloads (the main bundle stays ~144 KB gzipped; PostHog is a separate
+~80 KB chunk fetched only when enabled).
+
+Events wired for drop-off funnels: `search_performed` → `listing_viewed` →
+`review_form_opened` → `review_submitted`, plus `signup_started` → `signup_completed`,
+`login_completed`, `listing_form_opened` → `listing_created`, `map_toggled` and
+`review_reported`. In PostHog, build a Funnel from these to see exactly where people fall off.
+
+Privacy: users are identified by their **id, school and role only** — never name or email —
+input values are masked, and session recording is off unless `VITE_POSTHOG_RECORD=true`.
+All of this lives in `client/src/lib/analytics.js`; nothing else imports PostHog, so turning
+it off or swapping tools is a one-file change.
+
 **Image storage picks itself.** `server/src/middleware/upload.js` has two backends and
 chooses by environment:
 

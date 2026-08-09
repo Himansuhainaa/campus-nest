@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api, { getErrorMessage } from '../api/axios';
+import { events } from '../lib/analytics';
 
 export const REPORT_REASONS = [
   { value: 'spam', label: 'Spam or advertising' },
@@ -37,6 +38,7 @@ export default function ReportDialog({ review, onClose }) {
         reason,
         detail: detail.trim() || undefined,
       });
+      events.reviewReported(reason);
       setDone(data.message || 'Thanks — a moderator will look at this.');
       setTimeout(onClose, 2200);
     } catch (err) {

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/axios';
 import ListingCard from '../components/ListingCard';
 import { useAuth } from '../context/AuthContext';
+import { events } from '../lib/analytics';
 
 function CardSkeleton() {
   return (
@@ -80,6 +81,7 @@ export default function Home() {
   const handleSearch = (event) => {
     event.preventDefault();
     const school = query.trim();
+    if (school) events.searchPerformed(school);
     navigate(school ? `/listings?school=${encodeURIComponent(school)}` : '/listings');
   };
 

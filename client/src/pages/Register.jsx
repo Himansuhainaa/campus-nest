@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getErrorMessage } from '../api/axios';
+import { events } from '../lib/analytics';
 
 export default function Register() {
   const { register, user } = useAuth();
@@ -45,13 +46,15 @@ export default function Register() {
 
     setSubmitting(true);
     setError('');
+    events.signupStarted();
     try {
-      await register({
+      const newUser = await register({
         name: form.name.trim(),
         email: form.email.trim(),
         school: form.school.trim(),
         password: form.password,
       });
+      events.signupCompleted(newUser);
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, 'Could not create your account.'));

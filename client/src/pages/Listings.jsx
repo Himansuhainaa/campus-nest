@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/axios';
+import { events } from '../lib/analytics';
 import ListingCard from '../components/ListingCard';
 import MapView from '../components/MapView';
 import { useAuth } from '../context/AuthContext';
@@ -212,7 +213,10 @@ export default function Listings() {
                   key={key}
                   type="button"
                   aria-pressed={view === key}
-                  onClick={() => updateParams({ view: key === 'grid' ? '' : key })}
+                  onClick={() => {
+                    events.mapToggled(key);
+                    updateParams({ view: key === 'grid' ? '' : key });
+                  }}
                   className={`rounded-md px-4 py-2 text-sm font-semibold transition-colors ${
                     view === key
                       ? 'bg-white text-brand-700 shadow-sm'
