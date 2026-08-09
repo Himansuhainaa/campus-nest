@@ -226,7 +226,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
             <label htmlFor="lf-rent" className="label">
-              Rent per month (USD) <span className="text-red-500">*</span>
+              Rent per month (₹) <span className="text-red-500">*</span>
             </label>
             <input
               id="lf-rent"
@@ -237,7 +237,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
               className="input"
               value={form.rentPerMonth}
               onChange={setField('rentPerMonth')}
-              placeholder="1250"
+              placeholder="12000"
             />
           </div>
           <div>

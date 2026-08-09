@@ -28,9 +28,10 @@ export function initialsOf(text = '') {
 }
 
 export function formatRent(value) {
-  return new Intl.NumberFormat('en-US', {
+  // Indian rupees, Indian digit grouping (₹22,000 / ₹1,20,000).
+  return new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     maximumFractionDigits: 0,
   }).format(Number(value) || 0);
 }
