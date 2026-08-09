@@ -112,7 +112,7 @@ export default function Login() {
         <p className="mt-1 text-sm text-slate-600">
           If this instance was seeded with demo data you can sign in with{' '}
           <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800">
-            maya@campusnest.dev
+            ananya@campusnest.dev
           </code>{' '}
           and password{' '}
           <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-800">
