@@ -213,6 +213,29 @@ describe('POST /api/listings — validation', () => {
     expect(res.body.message).toMatch(pattern);
   });
 
+  it('accepts a high-end metro rent in rupees', async () => {
+    // Prices are rupees; ₹1,20,000/month is a realistic upper-market flat and
+    // must not be rejected the way the old USD-scale 100000 ceiling did.
+    const { token } = await registerUser();
+    const res = await request(app)
+      .post('/api/listings')
+      .set('Authorization', `Bearer ${token}`)
+      .send(listingPayload({ rentPerMonth: 120000 }));
+
+    expect(res.status).toBe(201);
+    expect(res.body.listing.rentPerMonth).toBe(120000);
+  });
+
+  it('still rejects an absurd rent above the ceiling', async () => {
+    const { token } = await registerUser();
+    const res = await request(app)
+      .post('/api/listings')
+      .set('Authorization', `Bearer ${token}`)
+      .send(listingPayload({ rentPerMonth: 5000000 }));
+
+    expect(res.status).toBe(400);
+  });
+
   it('rejects latitude without longitude', async () => {
     const { token } = await registerUser();
     const res = await request(app)

@@ -33,7 +33,9 @@ const listingSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Rent is required.'],
       min: [1, 'Rent must be greater than 0.'],
-      max: [100000, 'Rent looks unrealistically high.'],
+      // Ceiling is in rupees (the app's currency). 10 lakh/month comfortably
+      // clears a high-end metro flat while still catching typo'd values.
+      max: [1000000, 'Rent looks unrealistically high.'],
     },
     bedrooms: {
       type: Number,

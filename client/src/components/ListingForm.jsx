@@ -169,7 +169,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
             className="input"
             value={form.title}
             onChange={setField('title')}
-            placeholder="e.g. Oakline Flats — 2BR with in-unit laundry"
+            placeholder="e.g. Sunhaven Residency — 2BHK near Kothrud depot"
             maxLength={120}
           />
           <p className="hint">Say what it is and one thing that makes it stand out.</p>
@@ -185,7 +185,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
               className="input"
               value={form.address}
               onChange={setField('address')}
-              placeholder="412 Oakline Ave, Kingsley, OH"
+              placeholder="Lane 4, Dahanukar Colony, Kothrud, Pune 411038"
               maxLength={200}
             />
           </div>
@@ -198,7 +198,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
               className="input"
               value={form.school}
               onChange={setField('school')}
-              placeholder="Kingsley State University"
+              placeholder="Savitribai Phule Pune University"
               maxLength={120}
             />
             <p className="hint">This is how other students find it.</p>
@@ -289,7 +289,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
                 className="input"
                 value={form.lat}
                 onChange={setField('lat')}
-                placeholder="40.0012"
+                placeholder="18.5074"
               />
             </div>
             <div>
@@ -303,7 +303,7 @@ export default function ListingForm({ listing = null, onSubmit, onCancel, submit
                 className="input"
                 value={form.lng}
                 onChange={setField('lng')}
-                placeholder="-83.0141"
+                placeholder="73.8077"
               />
             </div>
           </div>

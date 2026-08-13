@@ -27,13 +27,17 @@ export function initialsOf(text = '') {
     .toUpperCase();
 }
 
+// Built once and reused — constructing an Intl.NumberFormat per call is costly,
+// and formatRent runs for every card on every render.
+const RENT_FORMAT = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+  maximumFractionDigits: 0,
+});
+
+/** Indian rupees, Indian digit grouping (₹22,000 / ₹1,20,000). */
 export function formatRent(value) {
-  // Indian rupees, Indian digit grouping (₹22,000 / ₹1,20,000).
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0);
+  return RENT_FORMAT.format(Number(value) || 0);
 }
 
 export function bedroomLabel(count) {

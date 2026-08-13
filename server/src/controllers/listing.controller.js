@@ -73,7 +73,7 @@ function readListingFields(body, { partial }) {
     label: 'Rent per month',
     required: !partial,
     min: 1,
-    max: 100000,
+    max: 1000000, // rupees; keep in sync with the Listing model
   });
   if (rent.provided) out.rentPerMonth = rent.value;
 

@@ -14,7 +14,8 @@
     "seed": "node src/seed.js",
     "import": "node src/import.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage --coverage.include=src"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -29,6 +30,7 @@
     "nodemailer": "^9.0.5"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.10",
     "nodemon": "^3.1.4",
     "supertest": "^7.2.2",
     "vitest": "^4.1.10"
