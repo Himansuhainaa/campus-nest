@@ -249,6 +249,31 @@ const reviews = [
   { listing: 'adyarshare', author: 'aditya', r: [5, 5, 2, 5, 4], comment: 'Very safe and very calm. No Wi-Fi arrangement so plan your own connection. It is a family house, so no late gatherings — that was clear from the start and honestly kept the place peaceful.' },
 ];
 
+/* ------------------------------- images --------------------------------- */
+// Free, commercially-licensed stock interiors from Unsplash (no attribution
+// required, hotlinkable via their CDN). These are GENERIC rooms attached to
+// INVENTED listings — never a real property's own photo, which would both
+// infringe copyright and misrepresent a real business. Each URL was verified
+// to return a real image and visually confirmed to be a room/flat/building.
+const U = (id) =>
+  `https://images.unsplash.com/photo-${id}?w=1200&q=80&auto=format&fit=crop`;
+
+const imagesByKey = {
+  kothrud2bhk: [U('1522708323590-d24dbb6b0267'), U('1484154218962-a197022b5858')],
+  karvenagarpg: [U('1522771739844-6a9f6d5f14af')],
+  aundhstudio: [U('1493809842364-78817add7ffb')],
+  koramangala3bhk: [U('1560448204-e02f11c3d0e2'), U('1554995207-c18c203602cb')],
+  // Twin-sharing / co-living PGs get actual hostel-dorm photos (bunk beds).
+  btmpg: [U('1709805619372-40de3f158e83')],
+  jayanagar1bhk: [U('1502672260266-1c1ef2d93688')],
+  mukherjeenagar: [U('1556020685-ae41abfc9365')],
+  hudsonlines: [U('1567767292278-a4f21aa2d36e')],
+  satyaniketan: [U('1560185007-c5ca9d2c014d')],
+  guindypg: [U('1768289269971-6171457bed13')],
+  velachery2bhk: [U('1502005229762-cf1b2da7c5d6')],
+  adyarshare: [U('1631049307264-da0ec9d70304')],
+};
+
 /* -------------------------------- run ----------------------------------- */
 async function seed() {
   const force = process.argv.includes('--force');
@@ -285,7 +310,11 @@ async function seed() {
   console.log(`[seed] created ${createdUsers.length} users`);
 
   const createdListings = await Listing.create(
-    listings.map(({ key, owner, ...l }) => ({ ...l, createdBy: userByKey[owner]._id })) // eslint-disable-line no-unused-vars
+    listings.map(({ key, owner, ...l }) => ({
+      ...l,
+      images: imagesByKey[key] || [],
+      createdBy: userByKey[owner]._id,
+    }))
   );
   const listingByKey = Object.fromEntries(listings.map((l, i) => [l.key, createdListings[i]]));
   console.log(`[seed] created ${createdListings.length} listings`);
